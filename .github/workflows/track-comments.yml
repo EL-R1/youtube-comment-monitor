@@ -39,7 +39,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: data/
-          key: snapshot-${{ matrix.environment }}
+          key: snapshot-${{ matrix.environment }}-${{ github.run_id }}
+          restore-keys: |
+            snapshot-${{ matrix.environment }}-
 
       - run: echo "$COOKIES" > cookies.txt
         env:
