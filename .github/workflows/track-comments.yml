@@ -1,0 +1,43 @@
+name: Track YouTube Comments
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  track:
+    strategy:
+      matrix:
+        video_id: ${{ fromJSON(vars.VIDEO_IDS) }}
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore snapshot cache
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: snapshot-${{ matrix.video_id }}
+
+      - name: Write cookies file
+        run: echo "$COOKIES" > cookies.txt
+        env:
+          COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        continue-on-error: true
+
+      - name: Run tracker
+        run: python -m src.main
+        env:
+          VIDEO_ID: ${{ matrix.video_id }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COOKIES_FILE: cookies.txt
+          NOTIFY_MODIFIED: ${{ vars.NOTIFY_MODIFIED || 'true' }}
