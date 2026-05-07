@@ -48,7 +48,7 @@ jobs:
 
       - name: Run for each video
         run: |
-          for video_id in $(echo '${{ vars.VIDEO_IDS }}' | jq -r '.[]'); do
+          for video_id in $(echo '${{ secrets.VIDEO_IDS }}' | jq -r '.[]'); do
             echo "=== Traitement de $video_id ==="
             SNAPSHOT_PATH="data/${{ matrix.environment }}/$video_id.json" \
             VIDEO_ID="$video_id" python -m src.main
@@ -56,4 +56,4 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           COOKIES_FILE: cookies.txt
-          NOTIFY_MODIFIED: ${{ vars.NOTIFY_MODIFIED || 'true' }}
+          NOTIFY_MODIFIED: ${{ secrets.NOTIFY_MODIFIED || 'true' }}
