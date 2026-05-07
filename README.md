@@ -5,14 +5,21 @@ Surveille les commentaires de vidéos YouTube et notifie sur Discord les **suppr
 ## Fonctionnement
 
 1. **Récupération** : via `yt-dlp` (pas de clé API YouTube nécessaire)
-2. **Snapshot** : l'état des commentaires est stocké dans `data/snapshot.json` (cache GitHub Actions, pas dans git)
+2. **Snapshot** : un snapshot par vidéo dans chaque environnement (`data/{environment}/{video_id}.json`, cache GitHub Actions)
 3. **Diff** : à chaque exécution, comparaison avec le snapshot précédent
 4. **Notification** : seuls les commentaires supprimés et modifiés sont envoyés sur Discord
+
+## Architecture
+
+- Les **environnements GitHub** isolent les configurations par projet
+- Chaque environnement a ses propres `VIDEO_IDS`, `DISCORD_WEBHOOK_URL`, `YOUTUBE_COOKIES`
+- Le workflow détecte automatiquement tous les environnements du repo
+- Un job parallèle par environnement, une boucle séquentielle par vidéo
 
 ## Prérequis
 
 - Python 3.10+
-- Cookies YouTube exportés (pour les vidéos qui le nécessitent)
+- Cookies YouTube exportés
 
 ## Installation locale
 
@@ -23,31 +30,29 @@ pip install -r requirements.txt
 ## Utilisation
 
 ```bash
-COOKIES_FILE=cookies.txt VIDEO_ID=tsvRQc8GsDE python -m src.main
+COOKIES_FILE=cookies.txt \
+VIDEO_ID=tsvRQc8GsDE \
+SNAPSHOT_PATH=data/snapshot.json \
+python -m src.main
 ```
 
-## Déploiement GitHub Actions
+## Configuration GitHub Actions
 
-### Variables à configurer
+### Dans chaque environnement GitHub
 
-| Variable | Description |
-|---|---|
-| `VIDEO_IDS` | Tableau JSON des IDs YouTube, ex: `["abc123","def456"]` |
-| `NOTIFY_MODIFIED` | `"true"` (défaut) ou `"false"` |
+| Type | Nom | Description |
+|---|---|---|
+| Variable | `VIDEO_IDS` | `["abc123","def456"]` |
+| Variable | `NOTIFY_MODIFIED` | `"true"` ou `"false"` (optionnel) |
+| Secret | `DISCORD_WEBHOOK_URL` | Webhook Discord |
+| Secret | `YOUTUBE_COOKIES` | Cookies YouTube |
 
-### Secrets à configurer
-
-| Secret | Description |
-|---|---|
-| `DISCORD_WEBHOOK_URL` | URL du webhook Discord |
-| `YOUTUBE_COOKIES` | Contenu du fichier `cookies.txt` (optionnel) |
-
-### Exporter les cookies YouTube
+### Exporter les cookies
 
 ```bash
 # Depuis votre navigateur, exporter les cookies au format Netscape
-# Extension recommandée : "Get cookies.txt LOCALLY"
-# Coller le contenu dans le secret GitHub YOUTUBE_COOKIES
+# Extension : "Get cookies.txt LOCALLY" (Chrome) ou "cookies.txt" (Firefox)
+# Coller le contenu dans le secret YOUTUBE_COOKIES
 ```
 
-Le workflow s'exécute automatiquement toutes les 6h pour chaque vidéo, et peut être déclenché manuellement depuis l'onglet Actions.
+Le workflow s'exécute toutes les 6h. Déclenchement manuel depuis l'onglet Actions.

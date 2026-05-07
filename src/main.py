@@ -10,20 +10,17 @@ from .diff import compute_diff
 from .fetch import fetch_all_comments
 from .notify import notify_changes
 
-SNAPSHOT_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-SNAPSHOT_PATH = os.path.join(SNAPSHOT_DIR, "snapshot.json")
-
 
 def load_snapshot() -> dict | None:
-    if not os.path.exists(SNAPSHOT_PATH):
+    if not os.path.exists(config.SNAPSHOT_PATH):
         return None
-    with open(SNAPSHOT_PATH) as f:
+    with open(config.SNAPSHOT_PATH) as f:
         return json.load(f)
 
 
 def save_snapshot(data: dict) -> None:
-    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
-    with open(SNAPSHOT_PATH, "w") as f:
+    os.makedirs(os.path.dirname(config.SNAPSHOT_PATH), exist_ok=True)
+    with open(config.SNAPSHOT_PATH, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
