@@ -3,7 +3,7 @@ from __future__ import annotations
 import requests
 
 MAX_CHARS = 1900
-MAX_TEXT = 200
+MAX_TEXT = 1900
 
 
 def _split_messages(lines: list[str]) -> list[str]:
@@ -40,7 +40,7 @@ def notify_changes(
 
     for c in deleted:
         text = c.get("text", "")[:MAX_TEXT]
-        lines.append(f"🗑️ **@{c.get('author', '?')}** : {text or '(vide)'}")
+        lines.append(f"🗑️ **@c.get('author', '?')}** : {text or '(vide)'}")
 
     if modified:
         if deleted:
