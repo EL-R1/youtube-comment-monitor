@@ -40,7 +40,7 @@ def notify_changes(
 
     for c in deleted:
         text = c.get("text", "")[:MAX_TEXT]
-        lines.append(f"🗑️ **@c.get('author', '?')}** : {text or '(vide)'}")
+        lines.append(f"🗑️ **{c.get('author', '?')}** : {text or '(vide)'}")
 
     if modified:
         if deleted:
@@ -48,7 +48,7 @@ def notify_changes(
         for c in modified:
             old_text = c.get("old_text", "")[:MAX_TEXT]
             link = f"https://www.youtube.com/watch?v={video_id}&lc={c.get('id', '')}"
-            lines.append(f"✏️ **@{c.get('author', '?')}** : {old_text} → [Voir](<{link}>)")
+            lines.append(f"✏️ **{c.get('author', '?')}** : {old_text} → [Voir](<{link}>)")
 
     for chunk in _split_messages(lines):
         requests.post(webhook_url, json={"content": chunk}, timeout=15)
